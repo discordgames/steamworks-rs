@@ -32,9 +32,12 @@ jobs:
           - os: macos-latest
             target: x86_64-apple-darwin
         exclude:
-          - os: ${{ inputs.target != 'all' && inputs.target != 'ubuntu-latest' && inputs.target || 'ubuntu-latest' }}
-          - os: ${{ inputs.target != 'all' && inputs.target != 'windows-latest' && inputs.target || 'windows-latest' }}
-          - os: ${{ inputs.target != 'all' && inputs.target != 'macos-latest' && inputs.target || 'macos-latest' }}
+          - os: ubuntu-latest
+            if: ${{ inputs.target != 'all' && inputs.target != 'ubuntu-latest' }}
+          - os: windows-latest
+            if: ${{ inputs.target != 'all' && inputs.target != 'windows-latest' }}
+          - os: macos-latest
+            if: ${{ inputs.target != 'all' && inputs.target != 'macos-latest' }}
 
     steps:
       - uses: actions/checkout@v4
