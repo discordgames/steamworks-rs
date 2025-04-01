@@ -19,36 +19,22 @@ on:
           - macos-latest
 
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            enabled: ${{ inputs.target == 'all' || inputs.target == 'ubuntu-latest' }}
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            enabled: ${{ inputs.target == 'all' || inputs.target == 'windows-latest' }}
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            enabled: ${{ inputs.target == 'all' || inputs.target == 'macos-latest' }}
-
-    if: ${{ matrix.enabled }}
-
+  build-ubuntu:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.target == 'all' || github.event.inputs.target == 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: x86_64-unknown-linux-gnu
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          shared-key: ubuntu-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build
         run: cargo build --verbose
@@ -62,7 +48,81 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: steamworks-${{ matrix.target }}
+          name: steamworks-x86_64-unknown-linux-gnu
+          path: |
+            target/debug/libsteamworks*
+            target/debug/steamworks*
+            target/release/libsteamworks*
+            target/release/steamworks*
+          if-no-files-found: error
+
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    if: ${{ github.event.inputs.target == 'all' || github.event.inputs.target == 'windows-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: windows-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Build examples
+        run: cargo build --examples --verbose
+
+      - name: Run tests
+        run: cargo test --verbose
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: steamworks-x86_64-pc-windows-msvc
+          path: |
+            target/debug/libsteamworks*
+            target/debug/steamworks*
+            target/release/libsteamworks*
+            target/release/steamworks*
+          if-no-files-found: error
+
+  build-macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.target == 'all' || github.event.inputs.target == 'macos-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: macos-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Build examples
+        run: cargo build --examples --verbose
+
+      - name: Run tests
+        run: cargo test --verbose
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: steamworks-x86_64-apple-darwin
           path: |
             target/debug/libsteamworks*
             target/debug/steamworks*
