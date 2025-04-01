@@ -484,11 +484,7 @@ impl<Manager> UserStats<Manager> {
     pub fn get_num_achievements(&self) -> Result<u32, ()> {
         unsafe {
             let num = sys::SteamAPI_ISteamUserStats_GetNumAchievements(self.user_stats);
-            if num != 0 {
-                Ok(num)
-            } else {
-                Err(())
-            }
+            Ok(num)
         }
     }
 
@@ -497,9 +493,7 @@ impl<Manager> UserStats<Manager> {
     /// Returns an empty string for an achievement name if `iAchievement` is not a valid index,
     /// and the current AppId must have achievements.
     pub fn get_achievement_names(&self) -> Option<Vec<String>> {
-        let num = self
-            .get_num_achievements()
-            .expect("Failed to get number of achievements");
+        let num = self.get_num_achievements().unwrap();
         let mut names = Vec::new();
 
         for i in 0..num {
