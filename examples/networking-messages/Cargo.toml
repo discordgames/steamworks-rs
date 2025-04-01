@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 steamworks = { path = "../.." }
-macroquad = "0.4"
+macroquad = { version = "=0.3.13", features = ["default"] }
